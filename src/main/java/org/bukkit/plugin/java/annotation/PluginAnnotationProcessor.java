@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.annotation.permission.Permission;
 import org.bukkit.plugin.java.annotation.permission.Permissions;
 import org.bukkit.plugin.java.annotation.plugin.ApiVersion;
 import org.bukkit.plugin.java.annotation.plugin.Description;
+import org.bukkit.plugin.java.annotation.dependency.Library;
 import org.bukkit.plugin.java.annotation.plugin.LoadOrder;
 import org.bukkit.plugin.java.annotation.plugin.LogPrefix;
 import org.bukkit.plugin.java.annotation.plugin.Plugin;
@@ -144,6 +145,14 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
         // prefix
         processAndPut( yml, "prefix", mainPluginType, null, LogPrefix.class, String.class );
+
+        // libraries
+        Library[] libraries = mainPluginType.getAnnotationsByType( Library.class );
+        List<String> libraryArr = Lists.newArrayList();
+        for ( Library lib : libraries ) {
+            libraryArr.add( lib.value() );
+        }
+        if ( !libraryArr.isEmpty() ) yml.put( "libraries", libraryArr );
 
         // dependencies
         Dependency[] dependencies = mainPluginType.getAnnotationsByType( Dependency.class );

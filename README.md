@@ -12,6 +12,7 @@ See the [wiki](https://www.spigotmc.org/wiki/plugin-yml/) for more information.
 @Author("md_5")
 @Website("www.spigotmc.org")
 @LogPrefix("Testing")
+@Library("com.squareup.okhttp3:okhttp:4.9.0")
 @Dependency("WorldEdit")
 @Dependency("Towny")
 @LoadBefore("Towny")
@@ -37,6 +38,8 @@ load: STARTUP
 author: md_5
 website: www.spigotmc.org
 prefix: Testing
+libraries:
+- com.squareup.okhttp3:okhttp:4.9.0
 depend:
 - WorldEdit
 - Towny
