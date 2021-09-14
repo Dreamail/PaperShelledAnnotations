@@ -18,7 +18,7 @@ public class AnnotationProcessor {
         PaperShelledDescription psDesc = main.getAnnotation(PaperShelledDescription.class);
         if (psDesc != null) {
             try (Writer out = env.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "",
-                    "plugin.yml").openWriter()) {
+                    "papershelled.plugin.json").openWriter()) {
                 PaperShelledPluginDescription obj = new PaperShelledPluginDescription();
                 for (Mixins mixin : psDesc.mixins()) {
                     Class<?>[] classes = mixin.value();

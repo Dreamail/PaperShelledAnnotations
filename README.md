@@ -1,8 +1,21 @@
+# PaperShelledAnnotations [![](https://www.jitpack.io/v/Apisium/PaperShelledAnnotations.svg)](https://www.jitpack.io/#Apisium/PaperShelledAnnotations)
+
 # Usage
-Add this jar to your pom.xml to enable automatic annotation-based plugin.yml generation.
+
+Add this jar to your `build.gradle` to enable automatic annotation-based plugin.yml generation.
 
 The only *required* annotation is the ```@Plugin``` annotation. All other annotations are optional.
 See the [wiki](https://www.spigotmc.org/wiki/plugin-yml/) for more information.
+
+```groovy
+repositories {
+	maven { url 'https://www.jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.Apisium:PaperShelled:Tag'
+}
+```
 
 ## Example Usage
 ```
