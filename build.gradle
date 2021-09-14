@@ -18,9 +18,12 @@ repositories {
 dependencies {
     compileOnly 'com.github.Apisium:PaperShelled:ddaf6a5d18'
     implementation 'org.yaml:snakeyaml:1.29'
+    implementation 'com.google.code.gson:gson:2.8.8'
 }
 
 shadowJar {
+    relocate 'org.yaml', 'cn.apisium.papershelled.yaml'
+    relocate 'com.google.gson', 'cn.apisium.papershelled.gson'
     archiveClassifier.set('')
     minimize()
 }
