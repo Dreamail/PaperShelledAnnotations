@@ -1,7 +1,5 @@
 package cn.apisium.papershelled.annotation;
 
-import org.bukkit.plugin.java.annotation.command.Commands;
-
 import java.lang.annotation.*;
 
 /**
@@ -13,6 +11,6 @@ import java.lang.annotation.*;
 @Repeatable(Mixins.class)
 public @interface Mixin {
     boolean required() default true;
-    Class[] value() default {};
+    Class<?>[] value() default {};
     String compatibilityLevel() default "JAVA_8";
 }

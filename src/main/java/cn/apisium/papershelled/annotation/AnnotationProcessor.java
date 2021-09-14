@@ -6,25 +6,38 @@ import com.google.gson.JsonObject;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class AnnotationProcessor {
     private static final class PaperShelledPluginDescription {
         public List<String> mixins = new ArrayList<>();
     }
     public static void process(TypeElement main, ProcessingEnvironment env) throws IOException {
+        Types tu = env.getTypeUtils();
+        Elements eu = env.getElementUtils();
         boolean flag = false;
         Mixin[] mixins = main.getAnnotationsByType(Mixin.class);
         PaperShelledPluginDescription obj = new PaperShelledPluginDescription();
         for (Mixin mixin : mixins) {
-            Class<?>[] classes = mixin.value();
+            String[][] classes = getTypeMirrors(mixin::value).stream().map(it -> {
+                TypeElement elm = (TypeElement) tu.asElement(it);
+                return new String[] {
+                        eu.getPackageOf(elm).getQualifiedName().toString(),
+                        elm.getQualifiedName().toString()
+                };
+            }).toArray(String[][]::new);
             if (classes.length == 0) continue;
-            String[] packageNames = classes[0].getPackage().getName().split("\\.");
+            String[] packageNames = classes[0][0].split("\\.");
             for (int j = 1; j < classes.length; j++) {
-                String[] names = classes[j].getPackage().getName().split("\\.");
+                String[] names = classes[j][0].split("\\.");
                 int len = Math.min(packageNames.length, names.length);
                 for (int i = 0; i < len; i++) {
                     if (!names[i].equals(packageNames[i]))  {
@@ -40,9 +53,10 @@ public class AnnotationProcessor {
                     file).openWriter()) {
                 JsonObject json = new JsonObject();
                 JsonArray arr = new JsonArray();
-                for (Class<?> clazz : classes) {
-                    String pkg = clazz.getPackage().getName().substring(pkgName.length());
-                    arr.add(pkg.startsWith(".") ? pkg.substring(1) : pkg);
+                for (String[] clazz : classes) {
+                    String pkg = clazz[0].substring(pkgName.length());
+                    if (pkg.startsWith(".")) pkg = pkg.substring(1);
+                    arr.add((pkg.isEmpty() ? "" : pkg + ".") + clazz[1]);
                 }
                 json.addProperty("required", mixin.required());
                 json.addProperty("package", pkgName);
@@ -57,5 +71,14 @@ public class AnnotationProcessor {
                 "papershelled.plugin.json").openWriter()) {
             new Gson().toJson(obj, out);
         }
+    }
+
+    private static List<? extends TypeMirror> getTypeMirrors(Supplier<?> runnable) {
+        try {
+            runnable.get();
+        } catch(MirroredTypeException e) {
+            return e.getTypeMirrors();
+        }
+        throw new RuntimeException();
     }
 }
