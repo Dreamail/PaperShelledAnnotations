@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -76,7 +76,7 @@ public class AnnotationProcessor {
     private static List<? extends TypeMirror> getTypeMirrors(Supplier<?> runnable) {
         try {
             runnable.get();
-        } catch(MirroredTypeException e) {
+        } catch (MirroredTypesException e) {
             return e.getTypeMirrors();
         }
         throw new RuntimeException();
