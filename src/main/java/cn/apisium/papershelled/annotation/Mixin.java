@@ -14,4 +14,6 @@ public @interface Mixin {
     Class<?>[] value() default {};
     String minVersion() default "0.8";
     String compatibilityLevel() default "JAVA_8";
+    String refMap() default "";
+    boolean hasRefMap() default true;
 }

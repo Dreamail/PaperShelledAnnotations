@@ -25,6 +25,7 @@ public class AnnotationProcessor {
         Elements eu = env.getElementUtils();
         boolean flag = false;
         Mixin[] mixins = main.getAnnotationsByType(Mixin.class);
+        String refMap = env.getOptions().get("refMapFileName");
         PaperShelledPluginDescription obj = new PaperShelledPluginDescription();
         for (Mixin mixin : mixins) {
             String[][] classes = getTypeMirrors(mixin::value).stream().map(it -> {
@@ -62,6 +63,11 @@ public class AnnotationProcessor {
                 json.addProperty("package", pkgName);
                 json.addProperty("compatibilityLevel", mixin.compatibilityLevel());
                 json.addProperty("minVersion", mixin.minVersion());
+                if (mixin.hasRefMap()) {
+                    String cur = mixin.refMap();
+                    if (cur.isEmpty()) cur = refMap;
+                    if (cur != null && !cur.isEmpty()) json.addProperty("refmap", cur);
+                }
                 json.add("mixins", arr);
                 new Gson().toJson(json, out2);
             }
