@@ -17,11 +17,12 @@ repositories {
 
 dependencies {
     compileOnly 'com.github.Apisium:PaperShelled:ddaf6a5d18'
-    implementation 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
+    implementation 'org.yaml:snakeyaml:1.29'
 }
 
 shadowJar {
     archiveClassifier.set('')
+    minimize()
 }
 
 build.dependsOn(shadowJar)

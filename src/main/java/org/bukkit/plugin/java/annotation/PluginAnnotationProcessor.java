@@ -1,9 +1,6 @@
 package org.bukkit.plugin.java.annotation;
 
 import cn.apisium.papershelled.annotation.AnnotationProcessor;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.annotation.command.Command;
 import org.bukkit.plugin.java.annotation.command.Commands;
@@ -34,7 +31,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
@@ -44,10 +40,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @SupportedAnnotationTypes({"cn.apisium.papershelled.annotation.*", "org.bukkit.plugin.java.annotation.*"})
 @SupportedSourceVersion( SourceVersion.RELEASE_8 )
@@ -93,7 +86,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
             return false;
         }
 
-        Map<String, Object> yml = Maps.newLinkedHashMap(); // linked so we can maintain the same output into file for sanity
+        Map<String, Object> yml = new LinkedHashMap<>(); // linked so we can maintain the same output into file for sanity
 
         // populate mainName
         final String mainName = mainPluginType.getQualifiedName().toString();
@@ -113,7 +106,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
         // authors
         Author[] authors = mainPluginType.getAnnotationsByType( Author.class );
-        List<String> authorMap = Lists.newArrayList();
+        List<String> authorMap = new ArrayList<>();
         for ( Author auth : authors ) {
             authorMap.add( auth.value() );
         }
@@ -131,7 +124,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
         // libraries
         Library[] libraries = mainPluginType.getAnnotationsByType( Library.class );
-        List<String> libraryArr = Lists.newArrayList();
+        List<String> libraryArr = new ArrayList<>();
         for ( Library lib : libraries ) {
             libraryArr.add( lib.value() );
         }
@@ -139,7 +132,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
         // dependencies
         Dependency[] dependencies = mainPluginType.getAnnotationsByType( Dependency.class );
-        List<String> hardDependencies = Lists.newArrayList();
+        List<String> hardDependencies = new ArrayList<>();
         for ( Dependency dep : dependencies ) {
             hardDependencies.add( dep.value() );
         }
@@ -163,7 +156,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
         // commands
         // Begin processing external command annotations
-        Map<String, Map<String, Object>> commandMap = Maps.newLinkedHashMap();
+        Map<String, Map<String, Object>> commandMap = new LinkedHashMap<>();
         boolean validCommandExecutors = processExternalCommands( rEnv.getElementsAnnotatedWith( Commands.class ), mainPluginType, commandMap );
         if ( !validCommandExecutors ) {
             // #processExternalCommand already raised the errors
@@ -174,7 +167,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
         // Check main class for any command annotations
         if ( commands != null ) {
-            Map<String, Map<String, Object>> merged = Maps.newLinkedHashMap();
+            Map<String, Map<String, Object>> merged = new LinkedHashMap<>();
             merged.putAll( commandMap );
             merged.putAll( this.processCommands( commands ) );
             commandMap = merged;
@@ -183,7 +176,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
         yml.put( "commands", commandMap );
 
         // Permissions
-        Map<String, Map<String, Object>> permissionMetadata = Maps.newLinkedHashMap();
+        Map<String, Map<String, Object>> permissionMetadata = new LinkedHashMap<>();
 
         Set<? extends Element> permissionAnnotations = rEnv.getElementsAnnotatedWith( Command.class );
         if ( permissionAnnotations.size() > 0 ) {
@@ -200,7 +193,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
         Permissions permissions = mainPluginType.getAnnotation( Permissions.class );
         if ( permissions != null ) {
-            Map<String, Map<String, Object>> joined = Maps.newLinkedHashMap();
+            Map<String, Map<String, Object>> joined = new LinkedHashMap<>();
             joined.putAll( permissionMetadata );
             joined.putAll( this.processPermissions( permissions ) );
             permissionMetadata = joined;
@@ -256,14 +249,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
                 continue;
             }
 
-            // Check to see if annotated class is actuall a command executor
-            TypeMirror mirror = this.processingEnv.getElementUtils().getTypeElement( CommandExecutor.class.getName() ).asType();
-            if ( !( this.processingEnv.getTypeUtils().isAssignable( typeElement.asType(), mirror ) ) ) {
-                this.raiseError( "Specified Command Executor class is not assignable from CommandExecutor " );
-                return false;
-            }
-
-            Map<String, Map<String, Object>> newMap = Maps.newLinkedHashMap();
+            Map<String, Map<String, Object>> newMap = new LinkedHashMap<>();
             Permissions annotation = typeElement.getAnnotation( Permissions.class );
             if ( annotation != null && annotation.value().length > 0 ) {
                 newMap.putAll( processPermissions( annotation ) );
@@ -325,13 +311,6 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
                 continue;
             }
 
-            // Check to see if annotated class is actuall a command executor
-            TypeMirror mirror = this.processingEnv.getElementUtils().getTypeElement( CommandExecutor.class.getName() ).asType();
-            if ( !( this.processingEnv.getTypeUtils().isAssignable( typeElement.asType(), mirror ) ) ) {
-                this.raiseError( "Specified Command Executor class is not assignable from CommandExecutor " );
-                return false;
-            }
-
             Commands annotation = typeElement.getAnnotation( Commands.class );
             if ( annotation != null && annotation.value().length > 0 ) {
                 commandMetadata.putAll( this.processCommands( annotation ) );
@@ -348,7 +327,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
      * @return The generated command metadata.
      */
     protected Map<String, Map<String, Object>> processCommands(Commands commands) {
-        Map<String, Map<String, Object>> commandList = Maps.newLinkedHashMap();
+        Map<String, Map<String, Object>> commandList = new LinkedHashMap<>();
         for ( Command command : commands.value() ) {
             commandList.put( command.name(), this.processCommand( command ) );
         }
@@ -363,7 +342,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
      * @return The generated command metadata.
      */
     protected Map<String, Object> processCommand(Command commandAnnotation) {
-        Map<String, Object> command = Maps.newLinkedHashMap();
+        Map<String, Object> command = new LinkedHashMap<>();
 
         if ( commandAnnotation.aliases().length == 1 ) {
             command.put( "aliases", commandAnnotation.aliases()[ 0 ] );
@@ -395,7 +374,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
      * @return The generated permission metadata.
      */
     protected Map<String, Object> processPermission(Permission permissionAnnotation) {
-        Map<String, Object> permission = Maps.newLinkedHashMap();
+        Map<String, Object> permission = new LinkedHashMap<>();
 
         if ( !"".equals( permissionAnnotation.desc() ) ) {
             permission.put( "description", permissionAnnotation.desc() );
@@ -405,7 +384,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
         }
 
         if ( permissionAnnotation.children().length > 0 ) {
-            Map<String, Boolean> childrenList = Maps.newLinkedHashMap(); // maintain order
+            Map<String, Boolean> childrenList = new LinkedHashMap<>(); // maintain order
             for ( ChildPermission childPermission : permissionAnnotation.children() ) {
                 childrenList.put( childPermission.name(), childPermission.inherit() );
             }
@@ -423,7 +402,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
      * @return The generated permission metadata.
      */
     protected Map<String, Map<String, Object>> processPermissions(Permissions permissions) {
-        Map<String, Map<String, Object>> permissionList = Maps.newLinkedHashMap();
+        Map<String, Map<String, Object>> permissionList = new LinkedHashMap<>();
         for ( Permission permission : permissions.value() ) {
             permissionList.put( permission.name(), this.processPermission( permission ) );
         }
