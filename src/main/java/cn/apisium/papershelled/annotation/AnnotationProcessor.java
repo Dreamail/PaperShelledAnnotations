@@ -31,7 +31,7 @@ public class AnnotationProcessor {
                 TypeElement elm = (TypeElement) tu.asElement(it);
                 return new String[] {
                         eu.getPackageOf(elm).getQualifiedName().toString(),
-                        elm.getQualifiedName().toString()
+                        elm.getSimpleName().toString()
                 };
             }).toArray(String[][]::new);
             if (classes.length == 0) continue;
@@ -60,7 +60,10 @@ public class AnnotationProcessor {
                 }
                 json.addProperty("required", mixin.required());
                 json.addProperty("package", pkgName);
-                json.addProperty("compatibilityLevel", mixin.compatibilityLevel());
+                if (!mixin.compatibilityLevel().isEmpty())
+                    json.addProperty("compatibilityLevel", mixin.compatibilityLevel());
+                if (!mixin.minVersion().isEmpty())
+                    json.addProperty("minVersion", mixin.minVersion());
                 json.add("mixins", arr);
                 new Gson().toJson(json, out2);
             }
