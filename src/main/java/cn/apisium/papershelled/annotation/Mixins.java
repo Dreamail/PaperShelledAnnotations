@@ -14,7 +14,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Mixins {
-    boolean required() default true;
-    Class[] value() default {};
-    String compatibilityLevel() default "JAVA_8";
+    Mixin[] value() default {};
 }

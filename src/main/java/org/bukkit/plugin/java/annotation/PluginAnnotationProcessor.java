@@ -221,9 +221,8 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
             }
         }
 
-        AnnotationProcessor.process( mainPluginType, this.processingEnv );
-
         try {
+            AnnotationProcessor.process( mainPluginType, this.processingEnv );
             Yaml yaml = new Yaml();
             FileObject file = this.processingEnv.getFiler().createResource( StandardLocation.CLASS_OUTPUT, "", "plugin.yml" );
             try ( Writer w = file.openWriter() ) {
