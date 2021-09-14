@@ -22,10 +22,7 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
+import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
@@ -42,6 +39,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@SupportedOptions("refMapFileName")
 @SupportedAnnotationTypes({"cn.apisium.papershelled.annotation.*", "org.bukkit.plugin.java.annotation.*"})
 @SupportedSourceVersion( SourceVersion.RELEASE_8 )
 public class PluginAnnotationProcessor extends AbstractProcessor {
