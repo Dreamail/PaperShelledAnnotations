@@ -1,10 +1,10 @@
 package org.bukkit.plugin.java.annotation;
 
+import cn.apisium.papershelled.annotation.AnnotationProcessor;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.permissions.PermissionDefault;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.annotation.command.Command;
 import org.bukkit.plugin.java.annotation.command.Commands;
 import org.bukkit.plugin.java.annotation.dependency.Dependency;
@@ -51,18 +51,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-@SupportedAnnotationTypes( "org.bukkit.plugin.java.annotation.*" )
+@SupportedAnnotationTypes({"cn.apisium.papershelled.annotation.*", "org.bukkit.plugin.java.annotation.*"})
 @SupportedSourceVersion( SourceVersion.RELEASE_8 )
 public class PluginAnnotationProcessor extends AbstractProcessor {
-
-    private boolean hasMainBeenFound = false;
 
     private static final DateTimeFormatter dFormat = DateTimeFormatter.ofPattern( "yyyy/MM/dd HH:mm:ss", Locale.ENGLISH );
 
     @Override
     public boolean process(Set<? extends TypeElement> annots, RoundEnvironment rEnv) {
-        Element mainPluginElement = null;
-        hasMainBeenFound = false;
+        Element mainPluginElement;
 
         Set<? extends Element> elements = rEnv.getElementsAnnotatedWith( Plugin.class );
         if ( elements.size() > 1 ) {
@@ -73,12 +70,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
         if ( elements.isEmpty() ) { // don't raise error because we don't know which run this is
             return false;
         }
-        if ( hasMainBeenFound ) {
-            raiseError( "The plugin class has already been located, aborting!" );
-            return false;
-        }
         mainPluginElement = elements.iterator().next();
-        hasMainBeenFound = true;
 
         TypeElement mainPluginType;
         if ( mainPluginElement instanceof TypeElement ) {
@@ -96,10 +88,6 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
         if ( mainPluginType.getModifiers().contains( Modifier.STATIC ) ) {
             raiseError( "Main plugin class cannot be static nested", mainPluginType );
             return false;
-        }
-
-        if ( !processingEnv.getTypeUtils().isSubtype( mainPluginType.asType(), fromClass( JavaPlugin.class ) ) ) {
-            raiseError( "Main plugin class is not an subclass of JavaPlugin!", mainPluginType );
         }
 
         if ( mainPluginType.getModifiers().contains( Modifier.ABSTRACT ) ) {
@@ -238,6 +226,8 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
             }
         }
 
+        AnnotationProcessor.process( mainPluginType, this.processingEnv );
+
         try {
             Yaml yaml = new Yaml();
             FileObject file = this.processingEnv.getFiler().createResource( StandardLocation.CLASS_OUTPUT, "", "plugin.yml" );
@@ -251,7 +241,6 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
                 String raw = yaml.dumpAs( yml, Tag.MAP, DumperOptions.FlowStyle.BLOCK );
                 w.write( raw );
                 w.flush();
-                w.close();
             }
             // try with resources will close the Writer since it implements Closeable
         } catch ( IOException e ) {
@@ -307,10 +296,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
         this.processingEnv.getMessager().printMessage( Diagnostic.Kind.ERROR, message, element );
     }
 
-    private TypeMirror fromClass(Class<?> clazz) {
-        return processingEnv.getElementUtils().getTypeElement( clazz.getName() ).asType();
-    }
-
+    @SuppressWarnings({"UnusedReturnValue", "SameParameterValue"})
     private <A extends Annotation, R> R processAndPut(
             Map<String, Object> map, String name, Element el, R defaultVal, Class<A> annotationType, Class<R> returnType) {
         return processAndPut( map, name, el, defaultVal, annotationType, returnType, "value" );
@@ -324,6 +310,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     private <A extends Annotation, R> R process(Element el, R defaultVal, Class<A> annotationType, Class<R> returnType, String methodName) {
         R result;
         A ann = el.getAnnotation( annotationType );

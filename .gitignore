@@ -29,3 +29,4 @@ st# Eclipse stuff
 *.ipr
 *.iws
 .idea/
+.gradle

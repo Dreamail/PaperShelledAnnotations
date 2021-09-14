@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+group 'cn.apisium.papershelled'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://www.jitpack.io' }
+    maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
+    compileOnly 'com.github.Apisium:PaperShelled:ddaf6a5d18'
+    implementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'org.yaml:snakeyaml:1.29'
+}
+
+shadowJar {
+    archiveClassifier.set('')
+}
+
+build.dependsOn(shadowJar)
