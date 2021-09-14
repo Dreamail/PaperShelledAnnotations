@@ -60,10 +60,8 @@ public class AnnotationProcessor {
                 }
                 json.addProperty("required", mixin.required());
                 json.addProperty("package", pkgName);
-                if (!mixin.compatibilityLevel().isEmpty())
-                    json.addProperty("compatibilityLevel", mixin.compatibilityLevel());
-                if (!mixin.minVersion().isEmpty())
-                    json.addProperty("minVersion", mixin.minVersion());
+                json.addProperty("compatibilityLevel", mixin.compatibilityLevel());
+                json.addProperty("minVersion", mixin.minVersion());
                 json.add("mixins", arr);
                 new Gson().toJson(json, out2);
             }

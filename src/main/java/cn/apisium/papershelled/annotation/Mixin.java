@@ -12,6 +12,6 @@ import java.lang.annotation.*;
 public @interface Mixin {
     boolean required() default true;
     Class<?>[] value() default {};
-    String minVersion() default "";
-    String compatibilityLevel() default "";
+    String minVersion() default "0.8";
+    String compatibilityLevel() default "JAVA_8";
 }
