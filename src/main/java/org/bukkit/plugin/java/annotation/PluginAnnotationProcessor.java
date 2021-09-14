@@ -31,12 +31,10 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
@@ -94,9 +92,6 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
             raiseError( "Main plugin class cannot be abstract", mainPluginType );
             return false;
         }
-
-        // check for no-args constructor
-        checkForNoArgsConstructor( mainPluginType );
 
         Map<String, Object> yml = Maps.newLinkedHashMap(); // linked so we can maintain the same output into file for sanity
 
@@ -277,15 +272,6 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
             yml.putAll( newMap );
         }
         return true;
-    }
-
-    private void checkForNoArgsConstructor(TypeElement mainPluginType) {
-        for ( ExecutableElement constructor : ElementFilter.constructorsIn( mainPluginType.getEnclosedElements() ) ) {
-            if ( constructor.getParameters().isEmpty() ) {
-                return;
-            }
-        }
-        raiseError( "Main plugin class must have a no argument constructor.", mainPluginType );
     }
 
     private void raiseError(String message) {
