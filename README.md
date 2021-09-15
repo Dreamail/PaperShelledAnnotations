@@ -18,6 +18,7 @@ dependencies {
 ```
 
 ## Example Usage
+
 ```
 @Plugin(name = "TestPlugin", version = "1.0")
 @Description("A test plugin")
@@ -34,8 +35,11 @@ dependencies {
 @Permission(name = "test.foo", desc = "Allows foo command", defaultValue = PermissionDefault.OP)
 @Permission(name = "test.*", desc = "Wildcard permission", defaultValue = PermissionDefault.OP, children = {@ChildPermission(name ="test.foo")})
 @ApiVersion(ApiVersion.Target.v1_13)
+@Mixin(MinecraftServerMixin.class)
 public class TestPlugin extends JavaPlugin {
+}
 ```
+
 Output:
 
 ```
@@ -76,6 +80,19 @@ permissions:
 api-version: '1.13'
 ```
 
+And mixins:
+
+```json
+{
+  "required": true,
+  "package": "some.package",
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.8",
+  "refmap": "TestPlugin.refmap.json",
+  "mixins": ["MinecraftServerMixin"]
+}
+```
+
 As of version 1.2.0-SNAPSHOT you can now also use the ```@Commands``` and ```@Permission```
 annotations on classes that implement CommandExecutor.
 
@@ -84,6 +101,7 @@ For example:
 @Commands(@Command(name = "TestCommand", aliases = "testext2", permission = "test.testext", permissionMessage = "Oopsy!", usage = "/testext test test"))
 @Permission(name = "test.testext", desc = "Provides access to /textext command", defaultValue = PermissionDefault.TRUE)
 public class TestCommand implements CommandExecutor {
+}
 ```
 
 As of version 1.2.0-SNAPSHOT the ```@ApiVersion``` annotation was introduced to bring compatibility for
